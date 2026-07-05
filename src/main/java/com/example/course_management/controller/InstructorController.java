@@ -1,6 +1,7 @@
 package com.example.course_management.controller;
 
 import com.example.course_management.model.Instructor;
+import com.example.course_management.response.ApiResponse;
 import com.example.course_management.service.IInstructorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class InstructorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Instructor>> getAllInstructor(
+    public ResponseEntity<ApiResponse<List<Instructor>>> getAllInstructor(
             @RequestParam(required = false) String search) {
 
         List<Instructor> instructors = instructorService.getAllInstructor();
@@ -34,12 +35,18 @@ public class InstructorController {
                     .toList();
         }
 
-        return ResponseEntity.ok(instructors);
+        ApiResponse<List<Instructor>> response = new ApiResponse<>(
+                true,
+                "Get all instructors successfully.",
+                instructors
+        );
+
+        return ResponseEntity.ok(response);
 
     }
 
     @PostMapping
-    public ResponseEntity<?> createInstructor(
+    public ResponseEntity<ApiResponse<Instructor>> createInstructor(
             @RequestBody Instructor instructor) {
 
         Instructor createdInstructor = instructorService.createInstructor(instructor);
@@ -47,17 +54,25 @@ public class InstructorController {
         if (createdInstructor == null) {
             return ResponseEntity
                     .badRequest()
-                    .body("Instructor cannot be created.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Instructor cannot be created.",
+                            null
+                    ));
         }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdInstructor);
+                .body(new ApiResponse<>(
+                        true,
+                        "Instructor created successfully.",
+                        createdInstructor
+                ));
 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateInstructor(
+    public ResponseEntity<ApiResponse<Instructor>> updateInstructor(
             @PathVariable Long id,
             @RequestBody Instructor instructor) {
 
@@ -66,28 +81,46 @@ public class InstructorController {
         if (updatedInstructor == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Instructor not found.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Instructor not found.",
+                            null
+                    ));
         }
 
-        return ResponseEntity.ok(updatedInstructor);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Instructor updated successfully.",
+                        updatedInstructor
+                )
+        );
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteInstructor(
+    public ResponseEntity<ApiResponse<Void>> deleteInstructor(
             @PathVariable Long id) {
 
         Instructor deletedInstructor = instructorService.deleteInstructorById(id);
 
         if (deletedInstructor == null) {
-            return  ResponseEntity
-                    .notFound()
-                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(
+                            false,
+                            "Instructor not found.",
+                            null
+                    ));
         }
 
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Instructor deleted successfully.",
+                        null
+                )
+        );
 
     }
 

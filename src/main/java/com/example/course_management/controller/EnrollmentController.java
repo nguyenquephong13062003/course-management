@@ -1,6 +1,7 @@
 package com.example.course_management.controller;
 
 import com.example.course_management.model.Enrollment;
+import com.example.course_management.response.ApiResponse;
 import com.example.course_management.service.IEnrollmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ public class EnrollmentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Enrollment>> getAllEnrollment(
+    public ResponseEntity<ApiResponse<List<Enrollment>>> getAllEnrollment(
             @RequestParam(required = false) String search) {
 
         List<Enrollment> enrollments = enrollmentService.getAllEnrollment();
@@ -35,11 +36,18 @@ public class EnrollmentController {
                     .toList();
         }
 
-        return ResponseEntity.ok(enrollments);
+        ApiResponse<List<Enrollment>> response = new ApiResponse<>(
+                true,
+                "Get all enrollments successfully.",
+                enrollments
+        );
+
+        return ResponseEntity.ok(response);
+
     }
 
     @PostMapping
-    public ResponseEntity<?> createEnrollment(
+    public ResponseEntity<ApiResponse<Enrollment>> createEnrollment(
             @RequestBody Enrollment enrollment) {
 
         Enrollment createdEnrollment =
@@ -48,16 +56,25 @@ public class EnrollmentController {
         if (createdEnrollment == null) {
             return ResponseEntity
                     .badRequest()
-                    .body("Course does not exist.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Course does not exist.",
+                            null
+                    ));
         }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdEnrollment);
+                .body(new ApiResponse<>(
+                        true,
+                        "Enrollment created successfully.",
+                        createdEnrollment
+                ));
+
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateEnrollment(
+    public ResponseEntity<ApiResponse<Enrollment>> updateEnrollment(
             @PathVariable Long id,
             @RequestBody Enrollment enrollment) {
 
@@ -67,14 +84,25 @@ public class EnrollmentController {
         if (updatedEnrollment == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Enrollment not found or Course does not exist.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Enrollment not found or Course does not exist.",
+                            null
+                    ));
         }
 
-        return ResponseEntity.ok(updatedEnrollment);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Enrollment updated successfully.",
+                        updatedEnrollment
+                )
+        );
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteEnrollment(
+    public ResponseEntity<ApiResponse<Void>> deleteEnrollment(
             @PathVariable Long id) {
 
         Enrollment deletedEnrollment =
@@ -82,12 +110,21 @@ public class EnrollmentController {
 
         if (deletedEnrollment == null) {
             return ResponseEntity
-                    .notFound()
-                    .build();
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(
+                            false,
+                            "Enrollment not found.",
+                            null
+                    ));
         }
 
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Enrollment deleted successfully.",
+                        null
+                )
+        );
+
     }
 }
