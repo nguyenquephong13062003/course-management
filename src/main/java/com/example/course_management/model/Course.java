@@ -2,7 +2,7 @@ package com.example.course_management.model;
 
 import com.example.course_management.enums.CourseStatus;
 
-public class Course {
+public class Course implements Identifiable{
     private Long id;
     private String title;
     private CourseStatus status;

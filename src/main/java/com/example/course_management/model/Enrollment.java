@@ -1,6 +1,6 @@
 package com.example.course_management.model;
 
-public class Enrollment {
+public class Enrollment implements Identifiable{
     private Long id;
     private String studentName;
     private Long courseId;

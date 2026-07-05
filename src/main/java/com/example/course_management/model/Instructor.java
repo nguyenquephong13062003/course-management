@@ -1,6 +1,6 @@
 package com.example.course_management.model;
 
-public class Instructor {
+public class Instructor implements Identifiable{
     private Long id;
     private String name;
     private String email;
