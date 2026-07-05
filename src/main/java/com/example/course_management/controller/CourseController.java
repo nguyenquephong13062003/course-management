@@ -1,6 +1,7 @@
 package com.example.course_management.controller;
 
 import com.example.course_management.model.Course;
+import com.example.course_management.response.ApiResponse;
 import com.example.course_management.service.ICourseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class CourseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourse(
+    public ResponseEntity<ApiResponse<List<Course>>> getAllCourse(
             @RequestParam(required = false) String search) {
 
         List<Course> courses = courseService.getAllCourse();
@@ -34,11 +35,18 @@ public class CourseController {
                     .toList();
         }
 
-        return ResponseEntity.ok(courses);
+        ApiResponse<List<Course>> response = new ApiResponse<>(
+                true,
+                "Get all courses successfully.",
+                courses
+        );
+
+        return ResponseEntity.ok(response);
+
     }
 
     @PostMapping
-    public ResponseEntity<?> createCourse(
+    public ResponseEntity<ApiResponse<Course>> createCourse(
             @RequestBody Course course) {
 
         Course createdCourse = courseService.createCourse(course);
@@ -46,17 +54,25 @@ public class CourseController {
         if (createdCourse == null) {
             return ResponseEntity
                     .badRequest()
-                    .body("Instructor does not exist.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Instructor does not exist.",
+                            null
+                    ));
         }
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(createdCourse);
+                .body(new ApiResponse<>(
+                        true,
+                        "Course created successfully.",
+                        createdCourse
+                ));
 
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCourse(
+    public ResponseEntity<ApiResponse<Course>> updateCourse(
             @PathVariable Long id,
             @RequestBody Course course) {
 
@@ -65,28 +81,46 @@ public class CourseController {
         if (updatedCourse == null) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Course not found or Instructor does not exist.");
+                    .body(new ApiResponse<>(
+                            false,
+                            "Course not found or Instructor does not exist.",
+                            null
+                    ));
         }
 
-        return ResponseEntity.ok(updatedCourse);
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Course updated successfully.",
+                        updatedCourse
+                )
+        );
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCourse(
+    public ResponseEntity<ApiResponse<Void>> deleteCourse(
             @PathVariable Long id) {
 
         Course deletedCourse = courseService.deleteCourseById(id);
 
         if (deletedCourse == null) {
-            return  ResponseEntity
-                    .notFound()
-                    .build();
+            return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(new ApiResponse<>(
+                            false,
+                            "Course not found.",
+                            null
+                    ));
         }
 
-        return ResponseEntity
-                .noContent()
-                .build();
+        return ResponseEntity.ok(
+                new ApiResponse<>(
+                        true,
+                        "Course deleted successfully.",
+                        null
+                )
+        );
 
     }
 
