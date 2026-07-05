@@ -2,6 +2,7 @@ package com.example.course_management.repository.impl;
 
 import com.example.course_management.model.Enrollment;
 import com.example.course_management.repository.IEnrollmentRepository;
+import com.example.course_management.utils.IdGenerator;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -21,6 +22,57 @@ public class EnrollmentRepositoryImpl implements IEnrollmentRepository {
                 2L,
                 "Tran Thi D",
                 2L));
+    }
+
+    @Override
+    public List<Enrollment> findAll() {
+        return enrollments;
+    }
+
+    @Override
+    public Enrollment findById(Long id) {
+        return enrollments.stream()
+                .filter(enrollment -> enrollment.getId().equals(id))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private final IdGenerator<Enrollment> idGenerator = new IdGenerator<>(enrollments);
+
+    @Override
+    public Enrollment create(Enrollment enrollment) {
+        enrollment.setId(idGenerator.next());
+        enrollments.add(enrollment);
+        return enrollment;
+    }
+
+    @Override
+    public Enrollment update(Long id, Enrollment enrollment) {
+
+        Enrollment existingEnrollment = findById(id);
+
+        if (existingEnrollment == null) {
+            return null;
+        }
+
+        existingEnrollment.setStudentName(enrollment.getStudentName());
+        existingEnrollment.setCourseId(enrollment.getCourseId());
+
+        return existingEnrollment;
+    }
+
+    @Override
+    public Enrollment deleteById(Long id) {
+
+        Enrollment existingEnrollment = findById(id);
+
+        if (existingEnrollment == null) {
+            return null;
+        }
+
+        enrollments.remove(existingEnrollment);
+
+        return existingEnrollment;
     }
 
 }
