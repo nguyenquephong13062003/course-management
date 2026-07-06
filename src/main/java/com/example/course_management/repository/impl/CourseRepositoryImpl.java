@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CourseRepositoryImpl implements ICourseRepository {
@@ -33,49 +34,42 @@ public class CourseRepositoryImpl implements ICourseRepository {
     }
 
     @Override
-    public Course findById(Long id) {
+    public Optional<Course> findById(Long id) {
         return courses.stream()
                 .filter(course -> course.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     private final IdGenerator<Course> idGenerator = new IdGenerator<>(courses);
 
     @Override
-    public Course create(Course course) {
+    public Optional<Course> create(Course course) {
         course.setId(idGenerator.next());
         courses.add(course);
-        return course;
+        return Optional.of(course);
     }
 
     @Override
-    public Course update(Long id, Course course) {
+    public Optional<Course> update(Long id, Course course) {
 
-        Course existingCourse = findById(id);
+        Optional<Course> existingCourseOpt = findById(id);
 
-        if (existingCourse == null) {
-            return null;
-        }
+        existingCourseOpt.ifPresent(existingCourse -> {
+            existingCourse.setTitle(course.getTitle());
+            existingCourse.setStatus(course.getStatus());
+            existingCourse.setInstructorId(course.getInstructorId());
+        });
 
-        existingCourse.setTitle(course.getTitle());
-        existingCourse.setStatus(course.getStatus());
-        existingCourse.setInstructorId(course.getInstructorId());
-
-        return existingCourse;
+        return existingCourseOpt;
     }
 
     @Override
-    public Course deleteById(Long id) {
+    public Optional<Course> deleteById(Long id) {
 
-        Course existingCourse = findById(id);
+        Optional<Course> existingCourseOpt = findById(id);
 
-        if (existingCourse == null) {
-            return null;
-        }
+        existingCourseOpt.ifPresent(courses::remove);
 
-        courses.remove(existingCourse);
-
-        return existingCourse;
+        return existingCourseOpt;
     }
 }

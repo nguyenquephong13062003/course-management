@@ -45,29 +45,51 @@ public class InstructorController {
 
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Instructor>> createInstructor(
-            @RequestBody Instructor instructor) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Instructor>> getInstructor(
+            @PathVariable Long id)  {
 
-        Instructor createdInstructor = instructorService.createInstructor(instructor);
-
-        if (createdInstructor == null) {
+        try {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Fetched successfully!",
+                            instructorService.getInstructorById(id)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
-                    .badRequest()
+                    .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Instructor cannot be created.",
+                            e.getMessage(),
                             null
                     ));
         }
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(
-                        true,
-                        "Instructor created successfully.",
-                        createdInstructor
-                ));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<Instructor>> createInstructor(
+            @RequestBody Instructor instructor) {
+
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(
+                            true,
+                            "Instructor created successfully.",
+                            instructorService.createInstructor(instructor)
+                    ));
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new ApiResponse<>(
+                            false,
+                            e.getMessage(),
+                            null
+                    ));
+        }
 
     }
 
@@ -76,51 +98,47 @@ public class InstructorController {
             @PathVariable Long id,
             @RequestBody Instructor instructor) {
 
-        Instructor updatedInstructor = instructorService.updateInstructor(id, instructor);
-
-        if (updatedInstructor == null) {
+        try {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Instructor updated successfully.",
+                            instructorService.updateInstructor(id, instructor)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Instructor not found.",
+                            e.getMessage(),
                             null
                     ));
         }
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Instructor updated successfully.",
-                        updatedInstructor
-                )
-        );
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteInstructor(
+    public ResponseEntity<ApiResponse<Instructor>> deleteInstructor(
             @PathVariable Long id) {
 
-        Instructor deletedInstructor = instructorService.deleteInstructorById(id);
-
-        if (deletedInstructor == null) {
+        try {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Instructor deleted successfully.",
+                            instructorService.deleteInstructorById(id)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Instructor not found.",
+                            e.getMessage(),
                             null
                     ));
         }
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Instructor deleted successfully.",
-                        null
-                )
-        );
 
     }
 

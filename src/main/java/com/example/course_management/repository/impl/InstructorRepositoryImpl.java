@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -24,48 +25,41 @@ public class InstructorRepositoryImpl implements IInstructorRepository {
     }
 
     @Override
-    public Instructor findById(Long id) {
+    public Optional<Instructor> findById(Long id) {
         return instructors.stream()
                 .filter(instructor -> instructor.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     private final IdGenerator<Instructor> idGenerator = new IdGenerator<>(instructors);
 
     @Override
-    public Instructor create(Instructor instructor) {
+    public Optional<Instructor> create(Instructor instructor) {
         instructor.setId(idGenerator.next());
         instructors.add(instructor);
-        return instructor;
+        return Optional.of(instructor);
     }
 
     @Override
-    public Instructor update(Long id, Instructor instructor) {
+    public Optional<Instructor> update(Long id, Instructor instructor) {
 
-        Instructor existingInstructor = findById(id);
+        Optional<Instructor> existingInstructorOpt = findById(id);
 
-        if (existingInstructor == null) {
-            return null;
-        }
+        existingInstructorOpt.ifPresent(existingInstructor -> {
+            existingInstructor.setName(instructor.getName());
+            existingInstructor.setEmail(instructor.getEmail());
+        });
 
-        existingInstructor.setName(instructor.getName());
-        existingInstructor.setEmail(instructor.getEmail());
-
-        return existingInstructor;
+        return existingInstructorOpt;
     }
 
     @Override
-    public Instructor deleteById(Long id) {
+    public Optional<Instructor> deleteById(Long id) {
 
-        Instructor existingInstructor = findById(id);
+        Optional<Instructor> existingInstructorOpt = findById(id);
 
-        if (existingInstructor == null) {
-            return null;
-        }
+        existingInstructorOpt.ifPresent(instructors::remove);
 
-        instructors.remove(existingInstructor);
-
-        return existingInstructor;
+        return existingInstructorOpt;
     }
 }

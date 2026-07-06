@@ -45,29 +45,52 @@ public class CourseController {
 
     }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Course>> createCourse(
-            @RequestBody Course course) {
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<Course>> getCourse(
+            @PathVariable Long id) {
 
-        Course createdCourse = courseService.createCourse(course);
+        try {
 
-        if (createdCourse == null) {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Fetched successfully!",
+                            courseService.getCourseById(id)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
-                    .badRequest()
+                    .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Instructor does not exist.",
+                            e.getMessage(),
                             null
                     ));
         }
 
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(
-                        true,
-                        "Course created successfully.",
-                        createdCourse
-                ));
+    }
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<Course>> createCourse(
+            @RequestBody Course course) {
+
+        try {
+            return ResponseEntity
+                    .status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(
+                            true,
+                            "Course created successfully.",
+                            courseService.createCourse(course)
+                    ));
+        } catch (RuntimeException e) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new ApiResponse<>(
+                            false,
+                            e.getMessage(),
+                            null
+                    ));
+        }
 
     }
 
@@ -76,51 +99,47 @@ public class CourseController {
             @PathVariable Long id,
             @RequestBody Course course) {
 
-        Course updatedCourse = courseService.updateCourse(id, course);
-
-        if (updatedCourse == null) {
+        try {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Course updated successfully.",
+                            courseService.updateCourse(id, course)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Course not found or Instructor does not exist.",
+                            e.getMessage(),
                             null
                     ));
         }
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Course updated successfully.",
-                        updatedCourse
-                )
-        );
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteCourse(
+    public ResponseEntity<ApiResponse<Course>> deleteCourse(
             @PathVariable Long id) {
 
-        Course deletedCourse = courseService.deleteCourseById(id);
-
-        if (deletedCourse == null) {
+        try {
+            return ResponseEntity.ok(
+                    new ApiResponse<>(
+                            true,
+                            "Course deleted successfully.",
+                            courseService.deleteCourseById(id)
+                    )
+            );
+        } catch (RuntimeException e) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(new ApiResponse<>(
                             false,
-                            "Course not found.",
+                            e.getMessage(),
                             null
                     ));
         }
-
-        return ResponseEntity.ok(
-                new ApiResponse<>(
-                        true,
-                        "Course deleted successfully.",
-                        null
-                )
-        );
 
     }
 

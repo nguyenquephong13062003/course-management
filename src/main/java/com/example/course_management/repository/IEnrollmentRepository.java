@@ -3,15 +3,16 @@ package com.example.course_management.repository;
 import com.example.course_management.model.Enrollment;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface IEnrollmentRepository {
     List<Enrollment> findAll();
 
-    Enrollment findById(Long id);
+    Optional<Enrollment> findById(Long id);
 
-    Enrollment create(Enrollment enrollment);
+    Optional<Enrollment> create(Enrollment enrollment);
 
-    Enrollment update(Long id, Enrollment enrollment);
+    Optional<Enrollment> update(Long id, Enrollment enrollment);
 
-    Enrollment deleteById(Long id);
+    Optional<Enrollment> deleteById(Long id);
 }
