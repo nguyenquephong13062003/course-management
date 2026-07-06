@@ -24,12 +24,14 @@ public class InstructorServiceImpl implements IInstructorService {
 
     @Override
     public Instructor getInstructorById(Long id) {
-        return instructorRepository.findById(id);
+        return instructorRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Instructor not found."));
     }
 
     @Override
     public Instructor createInstructor(Instructor instructor) {
-        return instructorRepository.create(instructor);
+        return instructorRepository.create(instructor)
+                .orElseThrow(() -> new RuntimeException("Instructor cannot be created."));
     }
 
     @Override
@@ -41,7 +43,8 @@ public class InstructorServiceImpl implements IInstructorService {
 //            return null;
 //        }
 
-        return instructorRepository.update(id, instructor);
+        return instructorRepository.update(id, instructor)
+                .orElseThrow(() -> new RuntimeException("Instructor not found."));
     }
 
     @Override
@@ -53,7 +56,8 @@ public class InstructorServiceImpl implements IInstructorService {
 //            return null;
 //        }
 
-        return instructorRepository.deleteById(id);
+        return instructorRepository.deleteById(id)
+                .orElseThrow(() -> new RuntimeException("Instructor not found."));
     }
 
 }

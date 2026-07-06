@@ -3,15 +3,16 @@ package com.example.course_management.repository;
 import com.example.course_management.model.Course;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ICourseRepository {
     List<Course> findAll();
 
-    Course findById(Long id);
+    Optional<Course> findById(Long id);
 
-    Course create(Course course);
+    Optional<Course> create(Course course);
 
-    Course update(Long id, Course course);
+    Optional<Course> update(Long id, Course course);
 
-    Course deleteById(Long id);
+    Optional<Course> deleteById(Long id);
 }

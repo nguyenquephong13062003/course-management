@@ -1,7 +1,6 @@
 package com.example.course_management.service.impl;
 
 import com.example.course_management.model.Course;
-import com.example.course_management.model.Instructor;
 import com.example.course_management.repository.ICourseRepository;
 import com.example.course_management.service.ICourseService;
 import com.example.course_management.service.IInstructorService;
@@ -28,19 +27,21 @@ public class CourseServiceImpl implements ICourseService {
 
     @Override
     public Course getCourseById(Long id) {
-        return courseRepository.findById(id);
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found."));
     }
 
     @Override
     public Course createCourse(Course course) {
 
-        Instructor instructor = instructorService.getInstructorById(course.getInstructorId());
-
-        if (instructor == null) {
-            return null;
+        try {
+            instructorService.getInstructorById(course.getInstructorId());
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Instructor of course not found.");
         }
 
-        return courseRepository.create(course);
+        return courseRepository.create(course)
+                .orElseThrow(() -> new RuntimeException("Course cannot be created."));
     }
 
     @Override
@@ -52,12 +53,14 @@ public class CourseServiceImpl implements ICourseService {
 //            return null;
 //        }
 
-        Instructor instructor = instructorService.getInstructorById(course.getInstructorId());
-
-        if (instructor == null) {
-            return null;
+        try {
+            instructorService.getInstructorById(course.getInstructorId());
+        } catch (RuntimeException e) {
+            throw new RuntimeException("Instructor of course not found.");
         }
-        return courseRepository.update(id, course);
+
+        return courseRepository.update(id, course)
+                .orElseThrow(() -> new RuntimeException("Course not found."));
     }
 
     @Override
@@ -69,7 +72,8 @@ public class CourseServiceImpl implements ICourseService {
 //            return null;
 //        }
 
-        return courseRepository.deleteById(id);
+        return courseRepository.deleteById(id)
+                .orElseThrow(() -> new RuntimeException("Course not found."));
     }
 
 }

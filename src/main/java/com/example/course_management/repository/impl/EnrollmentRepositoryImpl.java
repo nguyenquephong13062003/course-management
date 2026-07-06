@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class EnrollmentRepositoryImpl implements IEnrollmentRepository {
@@ -30,49 +31,42 @@ public class EnrollmentRepositoryImpl implements IEnrollmentRepository {
     }
 
     @Override
-    public Enrollment findById(Long id) {
+    public Optional<Enrollment> findById(Long id) {
         return enrollments.stream()
                 .filter(enrollment -> enrollment.getId().equals(id))
-                .findFirst()
-                .orElse(null);
+                .findFirst();
     }
 
     private final IdGenerator<Enrollment> idGenerator = new IdGenerator<>(enrollments);
 
     @Override
-    public Enrollment create(Enrollment enrollment) {
+    public Optional<Enrollment> create(Enrollment enrollment) {
         enrollment.setId(idGenerator.next());
         enrollments.add(enrollment);
-        return enrollment;
+        return Optional.of(enrollment);
     }
 
     @Override
-    public Enrollment update(Long id, Enrollment enrollment) {
+    public Optional<Enrollment> update(Long id, Enrollment enrollment) {
 
-        Enrollment existingEnrollment = findById(id);
+        Optional<Enrollment> existingEnrollmentOpt = findById(id);
 
-        if (existingEnrollment == null) {
-            return null;
-        }
+        existingEnrollmentOpt.ifPresent(existingEnrollment-> {
+            existingEnrollment.setStudentName(enrollment.getStudentName());
+            existingEnrollment.setCourseId(enrollment.getCourseId());
+        });
 
-        existingEnrollment.setStudentName(enrollment.getStudentName());
-        existingEnrollment.setCourseId(enrollment.getCourseId());
-
-        return existingEnrollment;
+        return existingEnrollmentOpt;
     }
 
     @Override
-    public Enrollment deleteById(Long id) {
+    public Optional<Enrollment> deleteById(Long id) {
 
-        Enrollment existingEnrollment = findById(id);
+        Optional<Enrollment> existingEnrollmentOpt = findById(id);
 
-        if (existingEnrollment == null) {
-            return null;
-        }
+        existingEnrollmentOpt.ifPresent(enrollments::remove);
 
-        enrollments.remove(existingEnrollment);
-
-        return existingEnrollment;
+        return existingEnrollmentOpt;
     }
 
 }
